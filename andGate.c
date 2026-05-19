@@ -1,3 +1,8 @@
+/*
+* Can be used for both AND, OR gates by just changing the training data
+*/
+
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<time.h>
@@ -14,6 +19,9 @@ float MSLoss(int dataset[][3], int n, float weights[1][2], float b){
         }
         y += b;
         float sigmoid_y = 1/ (1 + exp(-1 * y));
+        /*
+        * Sigmoid activation function is used to keep the output of the neuron within 0-1. This is best suited for logic gates because the possible outputs of logic gates are 0 and 1
+        */
         float diff = sigmoid_y - dataset[i][2];
         cost += diff * diff;
     }
@@ -25,8 +33,13 @@ void train(int dataset[][3], float lr, float step, int epochs, int n, float w[1]
     float db = 0.0f;
     
     for(int epoch= 1; epoch<= epochs; epoch++){
-        //printf("epoch count: %d\n", epoch);
-        float loss = MSLoss(dataset, n, w, *b); // loss should calculated in each epoch to calcalute finite derivative
+        /*
+        * Loss should calculated in each epoch to correctly calcalute the finite derivative because the weights would have changed during the previous epoch. The loss must be newly calculated to find out the finite derivative correctly
+        * Loss with the latest weights are required to calculate finite derivative
+        * finite derivative = (f(x + h) - f(x))/ h
+        * Here f(x) is the loss of neural network with the lastest weights
+        */
+        float loss = MSLoss(dataset, n, w, *b);  
         float dw[1][2] = {0.0f, 0.0f};
         
         // dL/ dw0, dL/dw1
@@ -53,7 +66,8 @@ void train(int dataset[][3], float lr, float step, int epochs, int n, float w[1]
 
 void testing(int dataset[][3], float weights[1][2], float b, int n){
     for(int i=0; i< n; i++){
-        float y = weights[0][0] * dataset[i][0] + weights[0][1] * dataset[i][1] + b;
+        float z = weights[0][0] * dataset[i][0] + weights[0][1] * dataset[i][1] + b;
+        float y = 1/ (1 + exp(-1 * z));
         printf("i1= %d\t, i2= %d\t, y= %f\n", dataset[i][0], dataset[i][1], y);
     }
 }
@@ -77,9 +91,9 @@ int main(){
     float loss= MSLoss(training, n, weights, b);
     printf("loss: %f\n", loss);
 
-    float step= 1e-2;
-    float lr= 1e-2;
-    int epochs= 100000;
+    float step= 1e-1;
+    float lr= 1e-1;
+    int epochs= 150000;
 
     train(training, lr, step, epochs, n, weights, &b);
     
