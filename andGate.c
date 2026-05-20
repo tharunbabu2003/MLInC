@@ -10,12 +10,12 @@
 #include<math.h>
 
 
-float MSLoss(int dataset[][3], int n, float weights[1][2], float b){
+float MSLoss(int dataset[][3], int n, float weights[2], float b){
     float cost = 0.0;
     for(int i = 0; i < n; i++){
         float y = 0.0;
         for(int j = 0; j < 2; j++){
-            y += weights[0][j] * dataset[i][j];
+            y += weights[j] * dataset[i][j];
         }
         y += b;
         float sigmoid_y = 1/ (1 + exp(-1 * y));
@@ -28,7 +28,7 @@ float MSLoss(int dataset[][3], int n, float weights[1][2], float b){
     return cost/n;
 }
 
-void train(int dataset[][3], float lr, float step, int epochs, int n, float w[1][2], float *b){
+void train(int dataset[][3], float lr, float step, int epochs, int n, float w[2], float *b){
     //printf("in training...\n");
     float db = 0.0f;
     
@@ -40,20 +40,20 @@ void train(int dataset[][3], float lr, float step, int epochs, int n, float w[1]
         * Here f(x) is the loss of neural network with the lastest weights
         */
         float loss = MSLoss(dataset, n, w, *b);  
-        float dw[1][2] = {0.0f, 0.0f};
+        float dw[2] = {0.0f, 0.0f};
         
         // dL/ dw0, dL/dw1
         for(int i= 0; i< 2;i++){
-            float step_changed_weights[1][2];
+            float step_changed_weights[2];
             memcpy(step_changed_weights, w, sizeof(step_changed_weights));
-            step_changed_weights[0][i] += step;
+            step_changed_weights[i] += step;
             float step_changed_loss= MSLoss(dataset, n, step_changed_weights, *b);
-            dw[0][i]= (step_changed_loss - loss)/ step;
+            dw[i]= (step_changed_loss - loss)/ step;
         }
         
         // w0 = w0 - (lr * dL/ dw0), w1 = w1 - (lr * dL/ dw1)
         for(int i=0; i<2; i++){
-            w[0][i] -= lr*dw[0][i];
+            w[i] -= lr*dw[i];
         }
         
         // b = b - (lr * dL/ db)
@@ -64,9 +64,9 @@ void train(int dataset[][3], float lr, float step, int epochs, int n, float w[1]
     }
 }
 
-void testing(int dataset[][3], float weights[1][2], float b, int n){
+void testing(int dataset[][3], float weights[2], float b, int n){
     for(int i=0; i< n; i++){
-        float z = weights[0][0] * dataset[i][0] + weights[0][1] * dataset[i][1] + b;
+        float z = weights[0] * dataset[i][0] + weights[1] * dataset[i][1] + b;
         float y = 1/ (1 + exp(-1 * z));
         printf("i1= %d\t, i2= %d\t, y= %f\n", dataset[i][0], dataset[i][1], y);
     }
@@ -84,9 +84,9 @@ int main(){
 
     srand((unsigned int) time(NULL));
 
-    float weights[1][2] = {(float)rand() / RAND_MAX, (float)rand() / RAND_MAX};
+    float weights[2] = {(float)rand() / RAND_MAX, (float)rand() / RAND_MAX};
     float b = (float) rand()/ RAND_MAX;
-    printf("w0= %f, w1=%f, b= %f\n", weights[0][0], weights[0][1], b);
+    printf("w0= %f, w1=%f, b= %f\n", weights[0], weights[1], b);
 
     float loss= MSLoss(training, n, weights, b);
     printf("loss: %f\n", loss);
@@ -97,7 +97,7 @@ int main(){
 
     train(training, lr, step, epochs, n, weights, &b);
     
-    printf("w0= %f, w1=%f, b= %f\n", weights[0][0], weights[0][1], b);
+    printf("w0= %f, w1=%f, b= %f\n", weights[0], weights[1], b);
 
     testing(training, weights, b, n);
 
