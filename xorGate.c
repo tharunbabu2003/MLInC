@@ -35,53 +35,74 @@ float MSE(int dataset[][3], float w1[2], float w2[2], float w3[2], float b1, flo
    return loss/ n;
 }
 
-void train(int dataset[][3], float w1[2], float w2[2], float w3[2], float b1, float b2, float b3, int n, float step, float lr, int epochs){
-
-    //Modify weights of last neuron
+void train(int dataset[][3], float w1[2], float w2[2], float w3[2], float *b1, float *b2, float *b3, int n, float step, float lr, int epochs){
 
     for(int i=0; i<= epochs; i++){
-        float loss = MSE(dataset, w1, w2, w3, b1, b2, b3, n);
+        float loss = MSE(dataset, w1, w2, w3, *b1, *b2, *b3, n);
         printf("loss after %d epochs: %f\n", i, loss);
 
         float step_changed_weights[2];
         float step_changed_loss;
+        float step_changed_b;
 
         // Modifying first weight of last neuron
-        memcpy(w3, step_changed_weights, sizeof(step_changed_weights));
+        memcpy(step_changed_weights, w3, sizeof(step_changed_weights));
         step_changed_weights[0] += step;
-        step_changed_loss = MSE(dataset, w1, w2, step_changed_weights, b1, b2, b3, n);
-        float dLdw20 = (loss - step_changed_loss)/step;
+        step_changed_loss = MSE(dataset, w1, w2, step_changed_weights, *b1, *b2, *b3, n);
+        float dLdw20 = (step_changed_loss - loss)/step;
 
         // Modifying second weight of last neuron
-        memcpy(w3, step_changed_weights, sizeof(step_changed_weights));
+        memcpy(step_changed_weights, w3, sizeof(step_changed_weights));
         step_changed_weights[1] += step;
-        step_changed_loss = MSE(dataset, w1, w2, step_changed_weights, b1, b2, b3, n);
-        float dLdw21 = (loss - step_changed_loss)/step;
+        step_changed_loss = MSE(dataset, w1, w2, step_changed_weights, *b1, *b2, *b3, n);
+        float dLdw21 = (step_changed_loss - loss)/step;
         
         // Modifying first weight of second neuron
-        memcpy(w2, step_changed_weights, sizeof(step_changed_weights));
+        memcpy(step_changed_weights, w2, sizeof(step_changed_weights));
         step_changed_weights[0] += step;
-        step_changed_loss = MSE(dataset, w1, step_changed_weights, w3, b1, b2, b3, n);
-        float dLdw10 = (loss - step_changed_loss)/step;
+        step_changed_loss = MSE(dataset, w1, step_changed_weights, w3, *b1, *b2, *b3, n);
+        float dLdw10 = (step_changed_loss - loss)/step;
 
 
         // Modifying second weight of second neuron
-        memcpy(w2, step_changed_weights, sizeof(step_changed_weights));
+        memcpy(step_changed_weights, w2, sizeof(step_changed_weights));
         step_changed_weights[1] += step;
-        step_changed_loss = MSE(dataset, w1, step_changed_weights, w3, b1, b2, b3, n);
-        float dLdw11 = (loss - step_changed_loss)/step;
+        step_changed_loss = MSE(dataset, w1, step_changed_weights, w3, *b1, *b2, *b3, n);
+        float dLdw11 = (step_changed_loss - loss)/step;
 
         // Modifying first weight of first neuron
-        memcpy(w1, step_changed_weights, sizeof(step_changed_weights));
+        memcpy(step_changed_weights, w1, sizeof(step_changed_weights));
         step_changed_weights[0] += step;
-        step_changed_loss = MSE(dataset, step_changed_weights, w2, w3, b1, b2, b3, n);
-        float dLdw00 = (loss - step_changed_loss)/step;
+        step_changed_loss = MSE(dataset, step_changed_weights, w2, w3, *b1, *b2, *b3, n);
+        float dLdw00 = (step_changed_loss - loss)/step;
 
         // Modifying second weight of first neuron
-        memcpy(w1, step_changed_weights, sizeof(step_changed_weights));
+        memcpy(step_changed_weights, w1, sizeof(step_changed_weights));
         step_changed_weights[1] += step;
-        step_changed_loss = MSE(dataset, step_changed_weights, w2, w3, b1, b2, b3, n);
-        float dLdw01 = (loss - step_changed_loss)/step;
+        step_changed_loss = MSE(dataset, step_changed_weights, w2, w3, *b1, *b2, *b3, n);
+        float dLdw01 = (step_changed_loss - loss)/step;
+
+        //Modifying the bias of last neuron
+        step_changed_b = *b3;
+        step_changed_b += step;
+
+        step_changed_loss = MSE(dataset, w1, w2, w3, *b1, *b2, step_changed_b, n);
+        float dLdb3= (step_changed_loss - loss)/step;
+
+        //Modifying the bias of second neuron
+        step_changed_b = *b2;
+        step_changed_b += step;
+
+        step_changed_loss = MSE(dataset, w1, w2, w3, *b1, step_changed_b, *b3, n);
+        float dLdb2= (step_changed_loss - loss)/step;
+
+        //Modifying the bias of first neuron
+        step_changed_b = *b1;
+        step_changed_b += step;
+
+        step_changed_loss = MSE(dataset, w1, w2, w3, step_changed_b, *b2, *b3, n);
+        float dLdb1= (step_changed_loss - loss)/step;
+
 
         w3[0] -= lr * dLdw20;
         w3[1] -= lr * dLdw21;
@@ -89,6 +110,9 @@ void train(int dataset[][3], float w1[2], float w2[2], float w3[2], float b1, fl
         w2[1] -= lr * dLdw11;
         w1[0] -= lr * dLdw00;
         w1[1] -= lr * dLdw01;
+        *b3 -= lr * dLdb3;
+        *b2 -= lr * dLdb2;
+        *b1 -= lr * dLdb1;
     }
 }
 
@@ -112,7 +136,7 @@ int main(){
     int training[][3] = {
         {0, 0, 0},
         {1, 0, 1},
-        {0, 1, 0},
+        {0, 1, 1},
         {1, 1, 0}
     };
     int n= sizeof(training)/ sizeof(training[0]);
@@ -133,9 +157,9 @@ int main(){
     printf("loss: %f\n", loss);
    
     float step = 1e-3;
-    float lr = 1e-3;
-    int epochs= 100;
-    train(training, w1, w2, w3, b1, b2, b3, n, step, lr, epochs);
+    float lr = 1e-1;
+    int epochs= 1000000;
+    train(training, w1, w2, w3, &b1, &b2, &b3, n, step, lr, epochs);
 
     test(training, w1, w2, w3, b1, b2, b3, n);
 
