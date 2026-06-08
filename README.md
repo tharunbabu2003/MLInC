@@ -1,14 +1,15 @@
 # ML In C: Neural Networks from Scratch in C
 
-A simple implementation of neural network concepts built entirely from scratch in C, without relying on external machine learning libraries. This project includes both a linear regression/perceptron example and a small neural network implementation of the AND logic gate.
+A simple implementation of neural network concepts built entirely from scratch in C, without relying on external machine learning libraries.
 
 ## Features
 
-- AND Gate Neural Network: Demonstrates a small neural network that learns the AND logic function.
-- Linear Regression Model: Implements a basic perceptron-like model for linear regression (y = wx + b).
-- Mean Squared Error Loss: Calculates loss using MSE for regression tasks.
-- Numerical Gradient Descent: Uses finite differences to approximate gradients (no automatic differentiation).
-- Training Loop: Iterative optimization with configurable learning rate, step size, and epochs.
+- Perceptron Regression: Fits a linear model `y = wx + b` using finite-difference gradient descent.
+- AND Gate Neural Network: Trains a single-neuron model with sigmoid activation for the AND logic function.
+- XOR Gate Neural Network: Trains a small 2-layer neural network that can learn the XOR function using finite-difference gradients.
+- Mean Squared Error Loss: Uses MSE to measure prediction error for both regression and classification examples.
+- Numerical Gradient Descent: Approximates gradients with finite differences rather than automatic differentiation.
+- Matrix Utilities: Includes `nn.h` to train Multi-layer perceptrons (MLP)
 
 ## Prerequisites
 
@@ -17,31 +18,44 @@ A simple implementation of neural network concepts built entirely from scratch i
 ## Building and Running
 
 1. **Compile the perceptron regression example**:
-   ```
+   ```sh
    gcc perceptron.c -o perceptron.exe
    ```
 
 2. **Run the perceptron example**:
-   ```
+   ```sh
    ./perceptron.exe
    ```
 
-   This program initializes random weights and bias, computes initial loss, trains the model for 2500 epochs using gradient descent, and prints loss after each epoch and final weights.
+   This program initializes random weights and bias, computes initial loss, trains, and prints loss per epoch and final model parameters.
 
 3. **Compile the AND gate example**:
-   ```
+   ```sh
    gcc andGate.c -o andGate.exe
    ```
 
 4. **Run the AND gate example**:
-   ```
+   ```sh
    ./andGate.exe
    ```
 
-   This program trains a small neural network to learn the AND logic function from truth table examples.
+   This program trains a sigmoid neuron for the AND truth table and prints the learned output for each input pair.
 
-## Code Structure
+5. **Compile the XOR gate example**:
+   ```sh
+   gcc xorGate.c -o xorGate.exe
+   ```
 
-- `MSLoss()`: Computes mean squared error for the dataset.
-- `train()`: Performs gradient descent training loop.
-- `main()`: Sets up training data, initializes parameters, and runs training.
+6. **Run the XOR gate example**:
+   ```sh
+   ./xorGate.exe
+   ```
+
+   This program trains a small two-layer neural network to learn the XOR truth table using finite-difference gradients.
+
+## Project Files
+
+- `perceptron.c`: Linear regression example with finite-difference gradient descent.
+- `andGate.c`: Single-neuron logic gate example using sigmoid activation.
+- `xorGate.c`: Multi-layer neural network example for XOR.
+- `nn.h/nn.h`: Minimal matrix utility header for training Multi-layer perceptrons (MLP)
