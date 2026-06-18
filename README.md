@@ -9,7 +9,7 @@ A simple implementation of neural network concepts built entirely from scratch i
 - XOR Gate Neural Network: Trains a small 2-layer neural network that can learn the XOR function using finite-difference gradients.
 - Mean Squared Error Loss: Uses MSE to measure prediction error for both regression and classification examples.
 - Numerical Gradient Descent: Approximates gradients with finite differences rather than automatic differentiation.
-- Matrix Utilities: Includes `nn.h` to train Multi-layer perceptrons (MLP)
+- Matrix Utilities: Includes `tinyml.h` for training Multi-layer perceptrons (MLP)
 
 ## Prerequisites
 
@@ -58,4 +58,4 @@ A simple implementation of neural network concepts built entirely from scratch i
 - `perceptron.c`: Linear regression example with finite-difference gradient descent.
 - `andGate.c`: Single-neuron logic gate example using sigmoid activation.
 - `xorGate.c`: Multi-layer neural network example for XOR.
-- `nn.h/nn.h`: Minimal matrix utility header for training Multi-layer perceptrons (MLP)
+- `tinyml.h/tinyml.h`: Minimal matrix utility header for training Multi-layer perceptrons (MLP)
