@@ -13,22 +13,27 @@
 #define NN_ASSERT assert
 #endif
 
-#define MAT_AT(m, i, j) (m).es[(i) * (m).cols + (j)]
+#include<math.h>
+#define MAT_AT(m, i, j) (m).es[(i) * (m).stride + (j)]
 #define MAT_PRINT(m) mat_print(m, #m);
+#define sigmoid(x) 1.0f/ (1.0f + expf(-x));
 
 typedef struct
 {
     size_t rows;
     size_t cols;
-    // int stride;
+    size_t stride;
     float *es;
 } Mat;
 
 Mat mat_alloc(size_t rows, size_t cols);
 void mat_dot(Mat dst, Mat a, Mat b);
 void mat_add(Mat dst, Mat a);
-void mat_print(Mat a, char* mname);
+void mat_print(Mat a, char* mat_name);
+Mat mat_row(Mat m, size_t row);
+void mat_copy(Mat dst, Mat src);
 void mat_rand(Mat a, float low, float high);
+void activation(Mat a);
 
 #endif // TINY_ML_
 
@@ -43,6 +48,7 @@ Mat mat_alloc(size_t rows, size_t cols){
     Mat m;
     m.rows = rows;
     m.cols= cols;
+    m.stride= cols;
     m.es = NN_MALLOC(sizeof(*(m.es)) * rows * cols);
     NN_ASSERT(m.es != NULL);
     return m;
@@ -99,6 +105,33 @@ void mat_add(Mat dst, Mat a){
     for(size_t i=0; i < dst.rows; i++){
         for(size_t j= 0; j< dst.cols; j++){
             MAT_AT(dst, i, j) += MAT_AT(a, i, j);
+        }
+    }
+}
+
+void activation(Mat a){
+    for(size_t i= 0; i< a.rows; ++i){
+        for(size_t j= 0; j< a.cols; ++j){
+            MAT_AT(a, i, j)= sigmoid(MAT_AT(a, i, j));
+        }
+    }
+}
+
+Mat mat_row(Mat m, size_t row){
+    return (Mat){
+        .rows= 1,
+        .cols= m.cols,
+        .stride= m.stride,
+        .es= &MAT_AT(m, row, 0)
+    };
+}
+
+void mat_copy(Mat dst, Mat src){
+    NN_ASSERT(dst.rows == src.rows);
+    NN_ASSERT(dst.cols == src.cols);
+    for(size_t i= 0; i< src.rows; ++i){
+        for(size_t j= 0; j< src.cols; ++j){
+            MAT_AT(dst, i, j) = MAT_AT(src, i, j);
         }
     }
 }
